@@ -1,0 +1,10 @@
+*.sh eol=lf
+*.conf eol=lf
+*.yml eol=lf
+*.php eol=lf
+*.sql eol=lf
+*.py eol=lf
+*.java eol=lf
+Dockerfile eol=lf
+Vagrantfile eol=lf
+vagrant_private_key eol=lf

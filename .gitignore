@@ -1,0 +1,5 @@
+.vagrant/
+notes/
+old/
+dump/
+*.log
