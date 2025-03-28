@@ -75,7 +75,7 @@ Vagrant.configure(2) do |config|
       # pour que k8s puisse utiliser containerd
       machine.vm.provision "shell",
         path: "install_docker.sh",
-        args: ["#{ctrl_hostname}"]
+        args: ["#{ctrl_hostname}"],
         reboot: true
     end
   end
