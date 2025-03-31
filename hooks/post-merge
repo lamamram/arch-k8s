@@ -1,0 +1,29 @@
+#!/bin/bash
+
+cp_with_subdir(){
+  _path=$1
+  parent=$(dirname $_path)
+  if [ "$parent" = "." ]; then cp $_path "../workdir/samples/$_path"
+  else
+    mkdir -p "../workdir/samples/$parent"
+    cp $_path "../workdir/samples/$_path"
+  fi
+}
+
+if [[ -d "../workdir" ]]; then
+  if [[ ! -d "../workdir/samples" ]]; then
+    mkdir ../workdir/samples
+  fi
+  last_commit=$(git rev-list --all -1)
+  last_commit=${last_commit:0:7}
+  last_commit_main=$(git log -1 --oneline main | awk '{print $1}')
+  if [[ "$last_commit" == "$last_commit_main" ]]; then
+    last_commit_origin_main=$(git log -1 --oneline origin/main | awk '{print $1}')
+    if [[ "$last_commit_main" == "$last_commit_origin_main" ]]; then
+      git log ORIG_HEAD..HEAD --stat=200 main | grep -Po "^ \K[a-zA-Z0-9\._/-]+(?= +\|)" | 
+      while read line; do
+        cp_with_subdir $line
+      done
+    fi
+  fi
+fi
