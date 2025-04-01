@@ -1,11 +1,22 @@
 ## nous allons utiliser une image debian12
+## image de distrution FROM scratch
+## BEST PRACTICE: utiliser une image + petite pour réduire la taille de l'image
+## une image existe pour exécuter du code NON pour développer
+FROM debian:12.10-slim
 
+## documenter l'image / filtrer les images et les conteneurs / confiugrer le conteneur
+LABEL author="matt"
+LABEL created_at="2025-04-01"
+LABEL stack="java"
+LABEL stack.service="tomcat"
 
-## documenter l'image
-
-
+## BEST PRACTICE: utiliser des paquets + petits
+## BEST PRACTICE: rassembler les créations/modifs/suppressions de fichiers/dossiers au sein des mêmes couches
 ## installer java (apt-get)
 ## et nettoyer le dépôt apt-get après
+
+RUN apt-get update -qq && apt-get install -yq curl openjdk-17-jre-headless && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ## ajouter un dossier /opt/tomcat
 ## injecter le fichier https://downloads.apache.org/tomcat/tomcat-9/v9.0.98/bin/apache-tomcat-9.0.98.tar.gz dans ce dossier
