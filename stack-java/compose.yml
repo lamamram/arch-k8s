@@ -1,0 +1,54 @@
+---
+
+## si l'image n'existe pas en local => alors docker compose essaie de télécharger depuis le registre privé OU public
+## sinon si la section build existe => alors docker compose essaie de construire l'image
+## sauf si on ajoute l'option --build
+## en travaillant en cluster: PAS DE BUILD => utiliser un registre privé
+
+networks:
+  stack-java:
+    name: stack-java
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/24
+          gateway: 172.19.0.1
+
+services:    
+  # tomcat:
+  #   container_name: stack-java-tomcat
+  #   image: stack-java-tomcat:1.0
+  #   build:
+  #     context: ./tomcat
+  #     args:
+  #       - TOMCAT_VERSION_FULL=${TOMCAT_VERSION_FULL:-9.0.102}
+  #     # dockerfile: Dockerfile
+  #   restart: unless-stopped
+  #   networks:
+  #     - stack-java
+  
+  httpd:
+    container_name: stack-java-httpd
+    image: stack-java-httpd:0.1
+    build:
+      # contexte local
+      context: ./httpd
+      #context: https://github.com/lamamram/docker-dev.git#main:stack-java/httpd
+      # no_cache: true
+    restart: unless-stopped
+    networks:
+      - stack-java
+    ports:
+      - 8083:80
+    # depends_on:
+    #   - tomcat
+    develop:
+      watch:
+        # pour le code
+        # - action: sync+restart
+        #   path: ./httpd/java_app.conf
+        #   target: /usr/local/apache2/conf/sites/java_app.conf
+        # changer le Dockerfile
+        - action: rebuild
+          path: ./httpd/httpd.conf
+          target: /usr/local/apache2/conf/httpd.conf
