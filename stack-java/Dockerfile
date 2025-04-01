@@ -20,18 +20,19 @@ LABEL stack.service="tomcat"
 ## et supprimer l'archive
 # ADD https://downloads.apache.org/tomcat/tomcat-9/v9.0.102/bin/apache-tomcat-9.0.102.tar.gz /opt/tomcat
 ## BEST PRACTICE: travailler en flux (|) en non en fichier (&&)
+## BEST PRACTICE: exécuter la commande du conteneur à venir avec un utilisateur non root
+## ajouter un utilisateur tomcat avec le dossier /opt/tomcat comme home et le groupe propriétaire
+## télécharger l'application sample https://tomcat.apache.org/tomcat-10.1-doc/appdev/sample/sample.war dans le dossier home 
+## spécifier le propriétaire et groupe à tomcat pour le dossier /opt/tomcat 
 
 RUN apt-get update -qq && apt-get install -yq curl openjdk-17-jre-headless && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     mkdir /opt/tomcat && \
     curl https://downloads.apache.org/tomcat/tomcat-9/v9.0.102/bin/apache-tomcat-9.0.102.tar.gz | \
-    tar xz --strip-components=1 -C /opt/tomcat
-
-## ajouter un utilisateur tomcat avec le dossier /opt/tomcat comme home et le groupe propriétaire
-
-## télécharger l'application sample https://tomcat.apache.org/tomcat-10.1-doc/appdev/sample/sample.war dans le dossier home 
-
-## spécifier le propriétaire et groupe à tomcat pour le dossier /opt/tomcat 
+    tar xz --strip-components=1 -C /opt/tomcat && \
+    useradd -d /opt/tomcat -s /bin/bash -U tomcat && \
+    curl https://tomcat.apache.org/tomcat-10.1-doc/appdev/sample/sample.war -o /opt/tomcat/webapps/sample.war && \
+    chown -R tomcat:tomcat /opt/tomcat
 
 
 ## déterminer le dossier home du conteneur: /opt/tomcat/webapps
