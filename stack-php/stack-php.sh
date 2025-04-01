@@ -23,12 +23,14 @@ docker network create \
 # 4/ créer le réseau stack-php et associer les conteneurs à ce réseau
 
 docker run \
-       --name stack-php-nginx \
+       --name stack-php-mariadb \
        -d --restart unless-stopped \
-       -p 8081:80 \
+       --env MARIADB_USER=test \
+       --env MARIADB_PASSWORD=roottoor \
+       --env MARIADB_DATABASE=test \
+       --env MARIADB_ROOT_PASSWORD=roottoor \
        --net stack-php \
-       -v ./vhost.conf:/etc/nginx/conf.d/vhost.conf \
-       nginx:1.27.4-perl
+       mariadb:11-ubi
 
 docker run \
        --name stack-php-fpm \
@@ -36,3 +38,12 @@ docker run \
        --net stack-php \
        -v ./index.php:/srv/index.php \
        bitnami/php-fpm:8.4-debian-12
+
+
+docker run \
+       --name stack-php-nginx \
+       -d --restart unless-stopped \
+       -p 8081:80 \
+       --net stack-php \
+       -v ./vhost.conf:/etc/nginx/conf.d/vhost.conf \
+       nginx:1.27.4-perl
