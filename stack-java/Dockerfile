@@ -14,19 +14,18 @@ LABEL stack.service="tomcat"
 ## BEST PRACTICE: rassembler les créations/modifs/suppressions de fichiers/dossiers au sein des mêmes couches
 ## installer java (apt-get)
 ## et nettoyer le dépôt apt-get après
-
-RUN apt-get update -qq && apt-get install -yq curl openjdk-17-jre-headless && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
 ## ajouter un dossier /opt/tomcat
 ## injecter le fichier https://downloads.apache.org/tomcat/tomcat-9/v9.0.102/bin/apache-tomcat-9.0.102.tar.gz dans ce dossier
 ## décomprésser dans ce dossier sans dossier intermédiaire 
 ## et supprimer l'archive
 # ADD https://downloads.apache.org/tomcat/tomcat-9/v9.0.102/bin/apache-tomcat-9.0.102.tar.gz /opt/tomcat
-RUN mkdir /opt/tomcat && \
-    curl https://downloads.apache.org/tomcat/tomcat-9/v9.0.102/bin/apache-tomcat-9.0.102.tar.gz -o /opt/tomcat/apache-tomcat-9.0.102.tar.gz && \
-    tar xzf /opt/tomcat/apache-tomcat-9.0.102.tar.gz --strip-components=1 -C /opt/tomcat && \
-    rm -rf /opt/tomcat/apache-tomcat-9.0.102.tar.gz
+## BEST PRACTICE: travailler en flux (|) en non en fichier (&&)
+
+RUN apt-get update -qq && apt-get install -yq curl openjdk-17-jre-headless && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    mkdir /opt/tomcat && \
+    curl https://downloads.apache.org/tomcat/tomcat-9/v9.0.102/bin/apache-tomcat-9.0.102.tar.gz | \
+    tar xz --strip-components=1 -C /opt/tomcat
 
 ## ajouter un utilisateur tomcat avec le dossier /opt/tomcat comme home et le groupe propriétaire
 
