@@ -16,8 +16,7 @@ LABEL stack.service="tomcat"
 ## et nettoyer le dépôt apt-get après
 ## ajouter un dossier /opt/tomcat
 ## injecter le fichier https://downloads.apache.org/tomcat/tomcat-9/v9.0.102/bin/apache-tomcat-9.0.102.tar.gz dans ce dossier
-## décomprésser dans ce dossier sans dossier intermédiaire 
-## et supprimer l'archive
+## décomprésser dans ce dossier sans dossier intermédiaire
 # ADD https://downloads.apache.org/tomcat/tomcat-9/v9.0.102/bin/apache-tomcat-9.0.102.tar.gz /opt/tomcat
 ## BEST PRACTICE: travailler en flux (|) en non en fichier (&&)
 ## BEST PRACTICE: exécuter la commande du conteneur à venir avec un utilisateur non root
@@ -36,13 +35,18 @@ RUN apt-get update -qq && apt-get install -yq curl openjdk-17-jre-headless && \
 
 
 ## déterminer le dossier home du conteneur: /opt/tomcat/webapps
-
+WORKDIR /opt/tomcat/webapps
 ## changer l'utilisateur à tomcat
-
+USER tomcat
 ## persister le dossier home pour accéder ou sauvegarder les apps
+# volumes créés au moment du run
+VOLUME [ "/opt/tomcat/webapps" ]
+## pour communiquer avec httpd avec le port par défaut de tomcat
+# expose == déclarer le ou les ports utilisés par le processus sous-jacent
+# Vrai ou Faux
+EXPOSE 8080
 
-## pour communiquer avec httpd avec le port par défaut de tomcat  ???
-
-## exécuter de manière dynamique (avec substitution) le binaire en foreground catalina.sh vs startup.sh ???
-## et ajouter la sous commande pour lancer en one shot run ou start ???
+## exécuter de manière dynamique (avec substitution) le binaire en foreground catalina.sh
+## et ajouter la sous commande pour lancer dans le terminal courant run
+CMD ["/opt/tomcat/bin/catalina.sh", "run"]
 
