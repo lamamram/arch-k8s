@@ -35,7 +35,7 @@ docker run \
        -d --restart unless-stopped \
        --env-file .env \
        --net stack-php \
-       -v ./mariadb-init.sql:/docker-entrypoint-initdb.d/mariadb-init.sql \
+       -v ./mariadb-init.sql:/docker-entrypoint-initdb.d/mariadb-init.sql:ro \
        -v db_data:/var/lib/mysql \
        mariadb:11-ubi
 
@@ -43,7 +43,7 @@ docker run \
        --name stack-php-fpm \
        -d --restart unless-stopped \
        --net stack-php \
-       -v ./index.php:/srv/index.php \
+       -v ./index.php:/srv/index.php:ro \
        bitnami/php-fpm:8.4-debian-12
 
 
@@ -52,5 +52,5 @@ docker run \
        -d --restart unless-stopped \
        -p 8081:80 \
        --net stack-php \
-       -v ./vhost.conf:/etc/nginx/conf.d/vhost.conf \
+       -v ./vhost.conf:/etc/nginx/conf.d/vhost.conf:ro \
        nginx:1.27.4-perl

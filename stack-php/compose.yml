@@ -1,0 +1,58 @@
+# créer un réseau
+
+networks:
+  stack-php:
+    # fixer le nom du réseau
+    name: stack-php
+    driver: bridge
+    # IP Address Management
+    ipam:
+      config:
+        - subnet: 172.18.0.0/24
+          gateway: 172.18.0.1
+
+# créer un volume
+volumes:
+  db_data:
+    name: db_data
+
+# créer des services
+# service = un ensemble de "replicas" de conteneurs, dissiminés dans l'infrastructure (cloud)
+services:
+  # REM: avec une applicaiton statefull, il faudra spécifier 2 configs: manager (écritures) et worker (lecture)
+  db:
+    container_name: stack-php-mariadb
+    image: mariadb:11-ubi
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - stack-php
+    volumes:
+      - ./mariadb-init.sql:/docker-entrypoint-initdb.d/mariadb-init.sql:ro
+      - db_data:/var/lib/mysql
+  
+  php:
+    container_name: stack-php-fpm
+    image: bitnami/php-fpm:8.4-debian-12
+    restart: unless-stopped
+    networks:
+      - stack-php
+    volumes:
+      # :ro = read only
+      - ./index.php:/srv/index.php:ro
+    depends_on:
+      - db
+  web:
+    container_name: stack-php-nginx
+    image: nginx:1.27.4-perl
+    restart: unless-stopped
+    ports:
+      - 8081:80
+    networks:
+      - stack-php
+    volumes:
+      - ./vhost.conf:/etc/nginx/conf.d/vhost.conf:ro
+    depends_on:
+      - php
+      
