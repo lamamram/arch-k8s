@@ -21,15 +21,22 @@ docker network create \
 # 2/ injecter le vhost dans le conteneur nginx
 # 3/ injecter le fichier index.php dans le conteneur php-fpm
 # 4/ créer le réseau stack-php et associer les conteneurs à ce réseau
+# 5/ injecter les variables d'environnement dans le conteneur mariadb
+# 6/ utiliser le mécanisme d' "entrypoint" pour le fichier mariadb-init.sql
+# 7/ créer un volume nommé db_data pour la persistance des données
+
+# --env MARIADB_USER=test \
+# --env MARIADB_PASSWORD=roottoor \
+# --env MARIADB_DATABASE=test \
+# --env MARIADB_ROOT_PASSWORD=roottoor \
 
 docker run \
        --name stack-php-mariadb \
        -d --restart unless-stopped \
-       --env MARIADB_USER=test \
-       --env MARIADB_PASSWORD=roottoor \
-       --env MARIADB_DATABASE=test \
-       --env MARIADB_ROOT_PASSWORD=roottoor \
+       --env-file .env \
        --net stack-php \
+       -v ./mariadb-init.sql:/docker-entrypoint-initdb.d/mariadb-init.sql \
+       -v db_data:/var/lib/mysql \
        mariadb:11-ubi
 
 docker run \
