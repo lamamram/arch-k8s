@@ -12,4 +12,8 @@
 
 #### CONTENEURS #######
 
-
+docker run \
+       --name stack-php-nginx \
+       -d --restart unless-stopped \
+       -p 8081:80 \
+       nginx:1.27.4-perl
