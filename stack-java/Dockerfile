@@ -10,6 +10,13 @@ LABEL created_at="2025-04-01"
 LABEL stack="java"
 LABEL stack.service="tomcat"
 
+# variables modifiables au moment du run
+ENV TOTO=tata
+
+# variables modifiables au moment du build
+ARG TOMCAT_MAJOR=9
+ARG TOMCAT_FULL=9.0.102
+
 ## BEST PRACTICE: utiliser des paquets + petits
 ## BEST PRACTICE: rassembler les créations/modifs/suppressions de fichiers/dossiers au sein des mêmes couches
 ## installer java (apt-get)
@@ -27,7 +34,7 @@ LABEL stack.service="tomcat"
 RUN apt-get update -qq && apt-get install -yq curl openjdk-17-jre-headless && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     mkdir /opt/tomcat && \
-    curl https://downloads.apache.org/tomcat/tomcat-9/v9.0.102/bin/apache-tomcat-9.0.102.tar.gz | \
+    curl https://downloads.apache.org/tomcat/tomcat-${TOMCAT_MAJOR}/v${TOMCAT_FULL}/bin/apache-tomcat-${TOMCAT_FULL}.tar.gz | \
     tar xz --strip-components=1 -C /opt/tomcat && \
     useradd -d /opt/tomcat -s /bin/bash -U tomcat && \
     curl https://tomcat.apache.org/tomcat-10.1-doc/appdev/sample/sample.war -o /opt/tomcat/webapps/sample.war && \
@@ -47,6 +54,18 @@ VOLUME [ "/opt/tomcat/webapps" ]
 EXPOSE 8080
 
 ## exécuter de manière dynamique (avec substitution) le binaire en foreground catalina.sh
+## substition du cmd par la commande à droite du docker run
 ## et ajouter la sous commande pour lancer dans le terminal courant run
 CMD ["/opt/tomcat/bin/catalina.sh", "run"]
 
+# ENTRYPOINT + CMD
+# docker run --name stack-java-tomcat -d --restart unless-stopped -p 8082:8080 stack-java-tomcat:0.1 start
+# commande réélle /opt/tomcat/bin/catalina.sh start
+# REM: les logs ne fonctionnent plus
+# ENTRYPOINT [ "/opt/tomcat/bin/catalina.sh" ]
+# CMD [ "run" ]
+
+# pas de susbtitution de la commande par défaut , pas de remplacement de la commande par défaut
+# ENTRYPOINT ["/opt/tomcat/bin/catalina.sh", "run"]
+# docker run --rm stack-java-tomcat:0.1 java --version
+# commande réélle /opt/tomcat/bin/catalina.sh run java --version
