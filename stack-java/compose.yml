@@ -17,7 +17,7 @@ networks:
 services:
   tomcat:
     container_name: stack-java-tomcat
-    image: stack-java-tomcat:0.1
+    image: jenkins.lan:443/stack-java-tomcat:0.1
     build:
       context: ./tomcat
       args:
@@ -40,8 +40,8 @@ services:
       - stack-java
     ports:
       - 8082:80
-    # depends_on:
-    #   - tomcat
+    depends_on:
+      - tomcat
     develop:
       watch:
         # pour le code
