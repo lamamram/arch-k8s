@@ -14,18 +14,18 @@ networks:
         - subnet: 172.19.0.0/24
           gateway: 172.19.0.1
 
-services:    
-  # tomcat:
-  #   container_name: stack-java-tomcat
-  #   image: stack-java-tomcat:1.0
-  #   build:
-  #     context: ./tomcat
-  #     args:
-  #       - TOMCAT_VERSION_FULL=${TOMCAT_VERSION_FULL:-9.0.102}
-  #     # dockerfile: Dockerfile
-  #   restart: unless-stopped
-  #   networks:
-  #     - stack-java
+services:
+  tomcat:
+    container_name: stack-java-tomcat
+    image: stack-java-tomcat:0.1
+    build:
+      context: ./tomcat
+      args:
+        - TOMCAT_FULL=${TOMCAT_FULL:-9.0.102}
+      # dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - stack-java
   
   httpd:
     container_name: stack-java-httpd
@@ -39,7 +39,7 @@ services:
     networks:
       - stack-java
     ports:
-      - 8083:80
+      - 8082:80
     # depends_on:
     #   - tomcat
     develop:
