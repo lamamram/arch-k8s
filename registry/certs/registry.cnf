@@ -1,0 +1,16 @@
+[ req ]
+prompt			= no
+default_bits		= 4096
+default_md		= sha256
+distinguished_name	= req_distinguished_name
+x509_extensions		= v3_req
+
+[ req_distinguished_name ]
+CN = registry.formation.lan
+
+[ v3_req ]
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = registry.formation.lan

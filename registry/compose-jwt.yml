@@ -1,0 +1,52 @@
+---
+
+services:
+  registry:
+    image: registry:2
+    container_name: registry
+    restart: unless-stopped
+    environment:
+      REGISTRY_HTTP_TLS_CERTIFICATE: /certs/registry.crt
+      REGISTRY_HTTP_TLS_KEY: /certs/registry.key
+      REGISTRY_HTTP_ADDR: 0.0.0.0:443
+      REGISTRY_AUTH: token
+      REGISTRY_AUTH_TOKEN_REALM: https://docker.lan:5001/auth
+      REGISTRY_AUTH_TOKEN_SERVICE: "Docker registry"
+      REGISTRY_AUTH_TOKEN_ISSUER: "dawan auth server"
+      REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE: /auth/server.pem
+      # REGISTRY_AUTH: htpasswd
+      # REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+      # REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+    ports:
+      - 5000:5000
+      - 443:443
+    networks:
+      - registry
+    volumes:
+      - ./certs:/certs:ro
+      # - ./auth:/auth:ro
+      - ./docker_auth_certificates:/auth:ro
+      - ./conf:/etc/docker/registry:ro
+    depends_on:
+      - auth
+  
+  auth:
+    image: cesanta/docker_auth:1
+    container_name: registry.auth
+    networks:
+      - registry
+    ports:
+      - 5001:5001
+    volumes:
+      - ./docker_auth_config:/config:ro
+      - ./docker_auth_certificates:/ssl:ro
+    command: ["--v=2", "--alsologtostderr", "/config/simple.yml"]
+
+networks:
+  registry:
+    name: registry
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
+          gateway: 172.21.0.1

@@ -1,0 +1,43 @@
+---
+
+services:
+  registry:
+    image: registry:2
+    container_name: registry
+    restart: unless-stopped
+    ## les configurations via les variables d'environnement 
+    ## écrasent les configurations du fichier config.yml
+    environment:
+      # j'explique où sont les clés
+      REGISTRY_HTTP_TLS_CERTIFICATE: /certs/registry.crt
+      REGISTRY_HTTP_TLS_KEY: /certs/registry.key
+      # rend le serveur registre disponible sur le port 443 sur
+      # toutes les interfaces du conteneur via la publication la vm
+      REGISTRY_HTTP_ADDR: 0.0.0.0:443
+      ## type d'authentification
+      REGISTRY_AUTH: htpasswd
+      # j'écrase la config de notre utilisateur
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+    # 5000 par défaut
+    ports:
+      - 5000:5000
+      - 443:443
+    networks:
+      - registry
+    volumes:
+      ## destinations arbitraires
+      - ./certs:/certs:ro
+      - ./auth:/auth:ro
+      ## destination attendue de la configuration
+      - ./conf:/etc/docker/registry:ro
+
+
+networks:
+  registry:
+    name: registry
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
+          gateway: 172.21.0.1
