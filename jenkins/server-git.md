@@ -2,8 +2,8 @@
 
 ## créer un utilisateur git
 
-1. `sudo useradd -m -U git`
-2. changer d'utilisateur: `sudo su -s /bin/bash - git`
+1. `sudo useradd -m -s /bin/bash -U git`
+2. changer d'utilisateur: `sudo su - git`
 
 ## créer le dépôt NU
 
