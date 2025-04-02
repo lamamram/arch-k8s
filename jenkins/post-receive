@@ -1,0 +1,1 @@
+curl -u admin:roottoor -s -k -X POST https://jenkins.lan:8443/git/notifyCommit?url=git@jenkins.lan:app.git&token=????
