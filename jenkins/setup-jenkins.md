@@ -14,6 +14,7 @@
 ### conteneur / image jenkins
 
 * `~/jenkins/compose.yml` gère le lancement de jenkins
+
 ```bash
 # lancement, dans le dossier contenant compose.yml
 docker compose up -d
@@ -21,6 +22,14 @@ docker compose up -d
 docker compose down
 # checker
 docker compose ps
+```
+
+* au cas où remplacer la valeur `formation.lan` par `jenkins.lan` dans la clé `extra_hosts:`
+```bash
+# dans la machine jenkins
+cd ~/jenkins
+docker compose down
+docker compose up -d
 ```
 
 * images docker utilisées
@@ -59,10 +68,21 @@ docker compose ps
 
 ## projet jenkins
 
+### vérifier les plugins installés en cas de dépréciation
+
+* Dashboard > Administrer Jenkins > Plugins > tout mettre à jour
+
+```bash
+# dans la machine jenkins
+cd ~/jenkins
+docker compose down
+docker compose up -d
+```
+
 ### création
 
 * Dashboard
-  - new item => appelé **java-stack**
+  - new item => appelé **app**
   - type "pipeline"
 
 ### configuration du projet avec GIT
@@ -71,7 +91,7 @@ docker compose ps
     + Administrer Jenkins
     + sécurité
     + section "Git Host Key Verification Configuration" > **no verification**
-  - espace du projet stack-java
+  - espace du projet "app"
   - configurer
   - Build Triggers
     + Scrutation de l'outil de gestion de version
@@ -79,7 +99,7 @@ docker compose ps
   - section pipeline
     + definition => **pipeline from SCM**
     + SCM > git
-    + URL: git@jenkins.lan:dev.git (ajouter le extra_hosts dans le compose)
+    + URL: git@jenkins.lan:app.git (ajouter le extra_hosts dans le compose)
     + créer un **credential** (cf infra)
   - ajouter credential
     + identifiants globaux (illimité)

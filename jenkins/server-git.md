@@ -8,9 +8,9 @@
 ## créer le dépôt NU
 
 ```bash
-mkdir ~/dev.git
-cd ~/dev.git
-git init --bare
+mkdir ~/app.git
+cd ~/app.git
+git init --initial-branch=main --bare
 ```
 
 ## créer le dossier SSH
@@ -38,8 +38,8 @@ chmod 700 ~/.ssh
 2. ajouter
 
 ```text
-Host jenkins.myusine.fr
- IdentityFile "/c/Users/<user>/.ssh/jenkins"
+Host jenkins.lan
+ IdentityFile "C:/Users/<user>/.ssh/jenkins"
  UserKnownHostsFile /dev/null
  StrictHostKeyChecking no
 ```
@@ -47,7 +47,7 @@ Host jenkins.myusine.fr
 
 ## configurer le dépôt distant dans le dépôt client
 
-* `git remote add origin git@jenkins.lan:dev.git`
+* `git remote add origin git@jenkins.lan:app.git`
 
 ## pousser les commits sur le dépôt distan en fonction de la branche
 
