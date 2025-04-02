@@ -69,3 +69,20 @@ CMD ["/opt/tomcat/bin/catalina.sh", "run"]
 # ENTRYPOINT ["/opt/tomcat/bin/catalina.sh", "run"]
 # docker run --rm stack-java-tomcat:0.1 java --version
 # commande réélle /opt/tomcat/bin/catalina.sh run java --version
+
+# quand le docker run est lancé
+# le CMD ci dessus est lancé
+# 1. on attent <start-period>
+# 2. le CMD du HEALTHCHECK est lancé
+# 3.1. le // termine avant le <timeout> avec le code 0 => SUCESS => (healthy) dans le STATUS du docker ps
+# 3.2. le // termine avant le <timeout> avec un code non-zero => ERROR (unhealthy)
+# 3.3. le // ne termine pas avant le <timeout>
+# si 3.2 ou 3.3 => on reessaye <retries> fois
+# si 3.2 ou 3.3 => avant de réessayer on attend <interval>s
+## REM: le CMD doit être écrit sans JSON
+HEALTHCHECK \
+            --start-period=3s \
+            --timeout=5s \
+            --retries=3 \
+            --interval=3s \
+            CMD grep "Server startup" /opt/tomcat/logs/catalina.*.log
