@@ -98,7 +98,7 @@ run_kubespray(){
 install_kubectl(){
 
     if [[ -z $(which kubectl) ]]; then
-        KUBE_CTL_VERSION="v1.30"
+        KUBE_CTL_VERSION="v1.31"
         echo
         echo "## 8. KUBECTL | Install"
         sudo apt-get update -qq 

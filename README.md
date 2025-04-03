@@ -61,3 +61,20 @@ ansible \
         -m ping \
         cpane.lan
 ```
+
+### upgrade la version de kubectl
+
+* dans la VM **jenkins.lan**
+
+```bash
+sudo apt-get autoremove kubectl
+KUBE_CTL_VERSION="v1.31"
+curl -fsSL "https://pkgs.k8s.io/core:/stable:/$KUBE_CTL_VERSION/deb/Release.key" | sudo gpg --dearmor -o /usr/share/keyrings/kubernetes-apt-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/$KUBE_CTL_VERSION/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list 2>&1 > /dev/null
+sudo apt-get update -qq 2>&1 > /dev/null
+sudo apt-get install -yqq kubectl 2>&1 > /dev/null
+
+# checker
+kubectl version
+kubectl get nodes
+```
