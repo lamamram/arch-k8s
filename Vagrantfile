@@ -21,14 +21,14 @@ Vagrant.configure(2) do |config|
   ctrl_version = "1.2"
   ctrl_hostname = "#{ctrl_subject}.lan"
   # clé de base de vagrant pour transférer la clé privée d'ansible !!!
-  ctrl_key_path = "~/.vagrant.d/boxes/ml-registry-VAGRANTSLASH-#{ctrl_subject}/#{ctrl_version}/amd64/virtualbox"
+  ctrl_key_path = "~/.vagrant.d/boxes/ml-registry-VAGRANTSLASH-debian12-plus/1.3/amd64/virtualbox"
   ctrl_key_name = "vagrant_private_key"
   cluster_image = "ml-registry/debian12-plus"
 
   # paquets et configuration pour les 4 machines
   common = <<-SHELL
   apt update -qq 2>&1 >/dev/null
-  apt install -y -qq net-tools telnet git python3-pip python3-venv sshpass 2>&1 >/dev/null
+  apt install -y -qq net-tools telnet git python3-pip python3-venv 2>&1 >/dev/null
   echo "autocmd filetype yaml setlocal ai ts=2 sw=2 et" > /home/vagrant/.vimrc
   sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/g' /etc/ssh/sshd_config
   systemctl restart sshd
@@ -46,7 +46,7 @@ Vagrant.configure(2) do |config|
   NODES.each do |node|
     etcHosts += "echo '" + node[:ip] + "   " + node[:hostname] + " autoks.lan' >> /etc/hosts" + "\n"
   end
-  etcHosts += "echo '" + "#{range}0" + " " + "#{ctrl_hostname}.lan" + "' >> /etc/hosts" + "\n"
+  etcHosts += "echo '" + "#{range}0" + " " + "#{ctrl_hostname}" + "' >> /etc/hosts" + "\n"
 
   ## MAIN
 
@@ -96,17 +96,18 @@ Vagrant.configure(2) do |config|
       end
       machine.vm.hostname = "#{hostname}"
       machine.vm.box = "#{ctrl_image}"
-      # machine.vm.network "public_network"
+      # machine.vm.network "public_network", bridge: "#{int}"
       machine.vm.network "public_network", bridge: "#{int}",
         ip: "#{ip}",
         netmask: "#{cidr}"
-        machine.ssh.insert_key = false
+      machine.ssh.insert_key = false
       ## provisioners: 
       # fichiers & dossiers
       [
         ["#{ctrl_key_path}/#{ctrl_key_name}", "~/#{ctrl_key_name}"]
       ].each do |src,dst|
-        machine.vm.provision "file", 
+        machine.vm.provision "get_pkey", 
+          type: "file",
           source: "#{src}", destination: "#{dst}"
       end
       # vagrant provision jenkins.lan
