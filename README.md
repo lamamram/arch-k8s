@@ -47,4 +47,17 @@ docker ps
 * `vagrant provision --provision-with get_pkey jenkins.lan`
 * `vagrant provision --provision-with install-kubespray jenkins.lan`
 
+### simuler la connexion ansible
 
+* sur la VM jenkins.lan
+* checker l'installation de ansible + cnx SSH + l'inventaire
+```bash
+cd ~
+source venv/bin/activate
+ansible \
+        --private-key ~/.ssh/id_rsa \
+        -i kubespray/inventory/mycluster/inventory.ini \
+        -u vagrant \
+        -m ping \
+        cpane.lan
+```
