@@ -3,3 +3,48 @@
 ## progression de la semaine
 
 ![](./global-schema.png)
+
+## installation du système
+
+1. jour 1-3
+
+* `vagrant up jenkins.lan`
+
+2. jour 3-5
+
+* `vagrant halt jenkins.lan`
+* `vagrant up`: les 4 machines
+* `vagrant provision --provision-with install-kubespray jenkins.lan`
+
+## troubleshooting
+
+### installation du cluster qui ne termine pas
+
+1. `vagrant halt`: pour les 4 machines
+2. ```bash
+   vagrant destroy f cpane.lan
+   vagrant destroy f worker1.lan
+   vagrant destroy f worker2.lan
+   ```
+3. checker:
+   + vos adresses ips
+   + checker la variable etcHosts pour que çà corresponde avec vos ips
+
+4. relancer
+   + `vagrant up`: 3 création et 1 lancement
+
+5. rechecker
+```bash
+vagrant ssh cpane.lan
+# sur la VM
+cat /etc/hosts
+docker ps
+```
+
+6. reprovisionner
+
+* corrections liées à la clé privée **ctrl_key_path**
+* `vagrant provision --provision-with get_pkey jenkins.lan`
+* `vagrant provision --provision-with install-kubespray jenkins.lan`
+
+
