@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: busy-dual
+  name: busy-dual
+spec:
+  containers:
+  - image: busybox
+    name: busy
+    command: ["sleep", "infinity"]
+    volumeMounts:
+      - mountPath: /mnt
+        name: mnt
+    resources: {}
+  - image: nginx
+    name: web
+    volumeMounts:
+      - mountPath: /mnt
+        name: mnt
+    resources: {}
+  volumes:
+    - name: mnt
+      # dossier partagé entre les deux conteneurs
+      emptyDir: {}
+    
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always

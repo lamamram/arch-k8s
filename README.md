@@ -8,12 +8,14 @@
 
 1. jour 1-3
 
-* `vagrant up jenkins.lan`
+* `vagrant up jenkins.lan`: commenter les lignes 116-120 parce qu'on a pas de cluster
+pour le moment
 
 2. jour 3-5
 
 * `vagrant halt jenkins.lan`
 * `vagrant up`: les 4 machines
+* décommenter les lignes 116-120 pour installer le cluster k8s
 * `vagrant provision --provision-with install-kubespray jenkins.lan`
 
 ## troubleshooting
@@ -22,9 +24,9 @@
 
 1. `vagrant halt`: pour les 4 machines
 2. ```bash
-   vagrant destroy f cpane.lan
-   vagrant destroy f worker1.lan
-   vagrant destroy f worker2.lan
+   vagrant destroy -f cpane.lan
+   vagrant destroy -f worker1.lan
+   vagrant destroy -f worker2.lan
    ```
 3. checker:
    + vos adresses ips
@@ -78,3 +80,31 @@ sudo apt-get install -yqq kubectl 2>&1 > /dev/null
 kubectl version
 kubectl get nodes
 ```
+
+### expérimenter avec Minikube
+
+cas windows: (ici)[https://minikube.sigs.k8s.io/docs/start/?arch=%2Fwindows%2Fx86-64%2Fstable%2F.exe+download#Service]
+
+* création du dossier `c:\minikube`
+```powershell
+New-Item -Path 'c:\' -Name 'minikube' -ItemType Directory -Force
+Invoke-WebRequest -OutFile 'c:\minikube\minikube.exe' -Uri 'https://github.com/kubernetes/minikube/releases/latest/download/minikube-windows-amd64.exe' -UseBasicParsing
+```
+
+* ajouter le dossier `c:\minikube` dans le PATH (Interface Graphique)
+
+* lancer minikube comme VM virtualbox `minikube start --driver=virtualbox --no-vtx-check`
+
+* suppression du cluster :  `minikube delete`
+
+### utilisation de l'extenxion YAML pour kubectl
+
+1. installer l'extension YAML de RedHat
+2. cas VSCODE: ajouter une config dans vos settings user => Ctrl+Shift+P
+
+```json
+"yaml.schemas": {
+  "Kubernetes": "*.yml"
+}
+```
+3. redémarrer VSCODE

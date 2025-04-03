@@ -12,9 +12,10 @@
    * `k run <name> --image <image:tag> -- <cmd>`
    * `k run busy --image busybox -- sleep infinity`
    * checker: `k get pod <name> -o wide|yaml|jsonpath '{{ .xxxx.xxx[] }}'`
-   * checker: `k get describe pod <name>`
+   * checker: `k describe pod <name>`
    * checker la ressource (doc): `k explain pod`
-   * checker dans le pod: `k exec -it busy -- /bin/bash`
+   * checker dans le pod: `k exec -it busy -- /bin/sh`
+   * supprimer le pod: `k delete pod busy`
 
 ## IaC POD
 
@@ -25,11 +26,12 @@
      + **server**: command not run && apiserver validated (error possible)
      + **none**: command run && apiserver validated but output
 
-   * générer un manifester (YAML) `k run busy --image busybox --dry-run=client -o yaml > /vagrant/k8s/busy.yml`
+   * générer un **manifeste (YAML)** `k run busy --image busybox --dry-run=client -o yaml > /vagrant/k8s/busy.yml`
    * retravailler/renommer le manifeste 
-   * et ensuite appliquer depuis le manifeste `k apply -f /vagrant/k8s/busy-dual.yml`
+   * et ensuite appliquer depuis le manifeste `k apply -f /vagrant/k8s/busy.yml`
 
 2. plusieurs conteneurs
+   * reprendre le fichier `busy.yml` et le copier en `busy-dual.yml`
 
    * avec plusieurs conteneur dans un pod, distinguer un conteneur
    * `k logs busy-dual -c web`
