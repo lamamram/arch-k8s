@@ -1,4 +1,4 @@
-# TP sur Minikube / Kind
+# TP sur kubespray
 
 ## Exploration
 
@@ -59,29 +59,71 @@
    # cat /mnt/fic
    ```
 
-## Deploiement: Deployment simple
+
+## Deploiement: Deployment (avec registre)
 
 1. génération
 
+   ```bash
+   # --image jenkins.lan:443/stack-java-httpd:1.0 \
+   k create deployment sample-java \
+     --image jenkins.lan:443/stack-java-tomcat:0.1 \
+     --dry-run=client -o yaml > /vagrant/k8s/sample-java-dpl.yml
+   ```
+
+2. création du namespace (partition "hermitique" du cluster k8s )
+
+   * `k create ns stack-java --dry-run=client -o yaml > /vagrant/k8s/stack-java-ns.yml`
+
+3. application du déploiement dans le namespace "stack-java"
+   * `k apply -n stack-java -f /vagrant/k8s/sample-java-dpl.yml`
+   * MIEUX: ajouter le namespace dans le manifeste
+
+   * checker: `k get -n stack-java deployments.apps,pod -o wide`
+
+### utiliser les images docker locales dans les noeud
+
+* k8s n'utilise pas nativement le registre local d'images docker, 
+  mais son propre registre via `crictl`
+
 ```bash
-k create deployment app-nginx \
-  --image nginx \
-  --dry-run=client -o yaml > /vagrant/k8s/dpl-nginx.yml 
-# voir le déploiement et les pods
-k get deployments.apps,pods
+# export import docker / export cri (k8s)
+docker save jenkins.lan:443/stack-java-httpd:1.0 -o httpd.tar
+sudo ctr -n=k8s.io images import httpd.tar
+sudo crictl images | grep httpd
 ```
 
+* adminstration de crictl comme docker: 
+  + Ex: `sudo crictl rmi $(sudo crictl images -f dangling=true -q)`
 
-2. élaguer pour avoir l'état du fichier 
+### mieux: connecter le déploiement au registre à la volée via un Secret
+
+```bash
+k create secret generic regcred \
+  --from-file=.dockerconfigjson=/home/vagrant/.docker/config.json \
+  --type=kubernetes.io/dockerconfigjson \
+  --dry-run=client -o yaml > /vagrant/k8s/registry-secret.yml
+```
+
+* test: `k get secret -n stack-java regcred -o="jsonpath={.data.\.dockerconfigjson}" | base64 --decode`
+
+* REM: le fichier `/home/vagrant/.docker/config.json` contient un secret encodé en base64 => pas CHIFFRE
+  => utiliser le `credsStore` Docker
+* REM2: le secret en yml est encodé en base64 => pas CHIFFRE
+  => utiliser les ressources Encryption (etcd, api ...)
+
+* REM3: configurer un accès insecure au registre dans k8S
+  + exécuter le script `/home/k8s/insecure_containerd_config.sh`
+  + dans les noeuds
 
 ### mise à jour du déploiement
 
 1. mettre en échelle manuelle : 
 
-* `k scale deployment app-nginx --replicas 3`
+* `k scale -n stack-java deployment sample-java --replicas 3`
   => pas immutable ET pas de révision (historique des travaux)
 
-* `k edit deployments.apps app-nginx`
+* `k edit -n stack-java deployments.apps sample-java`
   => modif directe de la config de la ressource dans etcd
   => procédure d'urgence
   => sans filet !!
@@ -91,17 +133,17 @@ k get deployments.apps,pods
 
 2. mise à jour de l'image : 
 
-* `k set image deployment/app-nginx nginx:1.27.4-perl`
-  + => trace de changement mais pas d'explication: `k rollout history deployment app-nginx`
+* `k set image -n stack-java deployment/sample-java stack-java-tomcat=jenkins.lan:443/stack-java-tomcat:1.1`
+  + => trace de changement mais pas d'explication: `k rollout -n stack-java history deployment sample-java`
 
 * MIEUX: IAC `k apply -f ...` + ajout `metada.annotations.kubernetes.io/change-cause`
-  + `k rollout history deployment app-nginx` => voit la description du changement
-  + `k rollout undo deployment/app-nginx --to-revision 1`
-  + documenter le rollback a posteriori: `k annotate  deployments.apps app-nginx kubernetes.io/change-cause="rollback to 1.27.4-perl" --overwrite`
+  + `k rollout history` => voit la description du changement
+  + `k rollout -n stack-java undo deployment/sample-java --to-revision 1`
+  + documenter le rollback a posteriori: `k annotate -n stack-java deployments.apps sample-java kubernetes.io/change-cause="rollback to 1.0" --overwrite`
   
 3. mécanique de la **rolling update**
 
-![ici](./schema.png)
+![ici](./schema.png)    
 
 ### mise en réseau
 
@@ -111,37 +153,30 @@ k get deployments.apps,pods
 * ajouter un **service** à un déploiement
 
 ```bash
-k expose deployment app-nginx \
+k expose -n stack-java deployment sample-java \
 --port 80 \
---target-port 80 \
---dry-run=client -o yaml > /vagrant/k8s/svc-nginx.yml
-
-# voir le deploiement, les pods et le service
-k get deployments.apps,pods,svc
+--target-port 8080 \
+--dry-run=client -o yaml > /vagrant/k8s/sample-java-svc.yml
 ```
 
 #### par défaut: on a un **ClusterIP**: 
   + une IP dispo dans le cluster
   + un port
-  + un dns qui est le `metadata.name` du service accessible dans le namespace
+  + un dns qui est le `metadata.name` accessible dans le namespace
   + un Fully Qualified Domain Name: accessible dans la totalité du cluster => il faudra ajouter des **NetPolicies**
   + ce service ne permet pas d'entrer le flux externe => communication inter-pod
 
-* test: `k exec busy -- wget -O - http://app-nginx`
+* test: `k exec -n stack-java busy -- wget -O - http://sample-java`
 
 
-* test (FQDN from outside namespace): `k exec busy-dflt -- wget -O - http://app-nginx.default.svc.cluster.local`
+* test (FQDN from outside namespace): `k exec busy-dflt -- wget -O - http://sample-java.stack-java.svc.cluster.local`
   => A PRIORI communication inter namespace
 
 #### le NodePort: 
 
 * rediriger le port du clusterIP sur un port sur tous les noeuds worker, sur toutes les interfaces (privées / publiques) par défaut
 
-* on ajoute: `spec.type: NodePort`
-
 #### on ajoute un LB: load balancer
-
-* changer le type de service : `spec.type: LoadBalancer`
 
 * utilisation du manifest du LB MetalLB
 

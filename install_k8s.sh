@@ -67,7 +67,7 @@ create_ssh_for_kubespray(){
         echo 
         echo "## 6. SSH | ssh private key and push public key"
         sudo -u $USER bash -c "ssh-keygen -b 2048 -t rsa -f .ssh/id_rsa -q -N ''"
-        mv "$HOME/$1" "$HOME/.ssh"
+        cp "$HOME/$1" "$HOME/.ssh"
         chmod 600 "$HOME/.ssh/$1"
         for srv in $(cat /etc/hosts | grep -E "cpane|worker" | awk '{print $2}');do
             cat "$HOME/.ssh/id_rsa.pub" | ssh -i "$HOME/.ssh/$1" -o StrictHostKeyChecking=no "$USER@$srv" -T "tee -a >> $HOME/.ssh/authorized_keys"

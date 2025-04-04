@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: app-nginx
+  name: app-nginx
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    # port du pod/container nginx
+    targetPort: 80
+  selector:
+    app: app-nginx
+  type: LoadBalancer
+

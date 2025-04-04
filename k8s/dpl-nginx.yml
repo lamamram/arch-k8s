@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kubernetes.io/change-cause: "nginx Updated to 27.4-perl"
+  labels:
+    app: app-nginx
+  name: app-nginx
+spec:
+  # nb de pods
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app-nginx
+  strategy: {}
+  # définition des pods
+  template:
+    metadata:
+      labels:
+        app: app-nginx
+    spec:
+      containers:
+      - image: nginx:1.27.4-perl
+        name: app-nginx
+        resources: {}
+status: {}
