@@ -175,9 +175,9 @@ kubectl get ipaddresspools -n metallb-system
   + un **Statefull** qui va gérer la réplication d'une bdd (statefull) donc avec 2 configurations différentes (manager/worker) + service de type **ClusterIP** pour la connexion entre nginx/php en interne dans le cluster
 
 
+## automatisation
 
-
-## gestion centralisée d'une application dans k8S
+### gestion centralisée d'une application dans k8S
 
 * utilisation d'un manifeste **kustomization.yml**
   + centralisant les ressources de l'application
