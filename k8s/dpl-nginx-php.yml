@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: app-nginx-php
+  name: app-nginx-php
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-nginx-php
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: app-nginx-php
+    spec:
+      containers:
+      - image: nginx:1.27.4-perl
+        name: nginx
+        volumeMounts:
+          - mountPath: /etc/nginx/conf.d
+            name: nginx-vhost
+        resources: {}
+      - image: bitnami/php-fpm:8.4-debian-12
+        name: php
+        volumeMounts:
+          - mountPath: /srv
+            name: php-code
+        resources: {}
+      volumes:
+        - name: php-code
+          # hostPath: injection d'un fichier/dossier depuis le noeud dans le conteneur
+          # le fichier/dossier doit exister sur tous les noeuds !! (faire NFS)
+          hostPath:
+            path: /data/index.php
+            type: File
+        - name: nginx-vhost
+          configMap:
+            name: nginx-vhost
+status: {}

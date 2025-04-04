@@ -2,18 +2,16 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    kubernetes.io/change-cause: "nginx Updated to 27.4-perl"
+    kubernetes.io/change-cause: "update nginx to 1.27.4-perl"
   labels:
     app: app-nginx
   name: app-nginx
 spec:
-  # nb de pods
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: app-nginx
   strategy: {}
-  # définition des pods
   template:
     metadata:
       labels:
@@ -21,8 +19,6 @@ spec:
     spec:
       containers:
       - image: nginx:1.27.4-perl
-        name: app-nginx
+        name: nginx
         resources: {}
-      # conteneur php dans le pod puisque nginx et php sont stateless
-      # - image: php:8.2.0-fpm
 status: {}
