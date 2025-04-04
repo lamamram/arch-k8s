@@ -10,6 +10,7 @@ spec:
     protocol: TCP
     # port du pod/container nginx
     targetPort: 80
+  # lien entre le service et le déploiement
   selector:
     app: app-nginx
   type: LoadBalancer

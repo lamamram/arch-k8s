@@ -160,14 +160,24 @@ k get customresourcedefinition.apiextensions.k8s.io/ipaddresspools.metallb.io -n
 kubectl get ipaddresspools -n metallb-system
 ```
 
-* configuration de la pool d'ip en mode couche 2 (L2)
+* configuration de la pool d'ip en mode couche 2 (L2): trouver un plage d'ips du sous réseau local (192.168.x.y ou 10.x.y.z)
 
   + `k apply -f /vagrant/k8s/ipaddresspool-metallb.yml`
 
+* `k apply -f /vagrant/k8s/svc-nginx.yml`
+  + `k get deployments.apps,pods,svc` => on voit l'adresse du bridge externe du load Balancer => le nginx est exposé au sens k8s
+
+### synthèse
+
+* pour déployer une application (n-tiers) conteneurisée avec k8s
+  + un **Deployment** pour la couche **utilisateur** (serveur web) + un service de type **LoadBalancer**
+  + on peut aussi ajouter la couche **logique** (serveur de l'app - code) dans le déploiement précédent en particulier au sein du pod configuré dans le déploiement
+  + un **Statefull** qui va gérer la réplication d'une bdd (statefull) donc avec 2 configurations différentes (manager/worker) + service de type **ClusterIP** pour la connexion entre nginx/php en interne dans le cluster
+
+
+
 
 ## gestion centralisée d'une application dans k8S
-
-* TIP: `k delete -n stack-java all --all`
 
 * utilisation d'un manifeste **kustomization.yml**
   + centralisant les ressources de l'application

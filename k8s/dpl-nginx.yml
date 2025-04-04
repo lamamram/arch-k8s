@@ -23,4 +23,6 @@ spec:
       - image: nginx:1.27.4-perl
         name: app-nginx
         resources: {}
+      # conteneur php dans le pod puisque nginx et php sont stateless
+      # - image: php:8.2.0-fpm
 status: {}
