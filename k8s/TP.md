@@ -17,6 +17,11 @@
    * checker dans le pod: `k exec -it busy -- /bin/sh`
    * supprimer le pod: `k delete pod busy`
 
+3. voir le conteneur dans le noeud
+   * trouver le noeud sur lequel le pod est installé `k get pods busy -o wide`
+   * connexion ssh sur le noeud: `vagrant ssh | ssh`
+   * `crictl ps`
+
 ## IaC POD
 
 1. Manifeste

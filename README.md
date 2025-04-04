@@ -97,6 +97,9 @@ Invoke-WebRequest -OutFile 'c:\minikube\minikube.exe' -Uri 'https://github.com/k
 
 * suppression du cluster :  `minikube delete`
 
+* toujours préfixer les commandes k8s avec minijube 
+`minikube kubectl -- <reste de la commande normale>`
+
 ### utilisation de l'extenxion YAML pour kubectl
 
 1. installer l'extension YAML de RedHat
